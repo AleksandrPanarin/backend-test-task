@@ -1,6 +1,18 @@
 FROM php:8.3-cli-alpine as sio_test
-RUN apk add --no-cache git zip bash
 
+RUN apk add --no-cache git zip bash gmp-dev mpfr-dev mpc1-dev autoconf gcc g++ make libtool wget
+
+RUN wget http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz \
+    && tar -xzf mpdecimal-2.5.1.tar.gz \
+    && cd mpdecimal-2.5.1 \
+    && ./configure \
+    && make \
+    && make install \
+    && cd .. \
+    && rm -rf mpdecimal-2.5.1 mpdecimal-2.5.1.tar.gz
+
+RUN pecl install decimal \
+    && docker-php-ext-enable decimal
 # Setup php extensions
 RUN apk add --no-cache postgresql-dev \
     && docker-php-ext-install pdo_pgsql pdo_mysql
